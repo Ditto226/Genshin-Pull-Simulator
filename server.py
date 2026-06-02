@@ -7,7 +7,6 @@ from typing import Optional
 from fastapi import Depends, FastAPI, HTTPException, status, Request
 from pydantic import BaseModel, Field
 import uvicorn
-from starlette.middleware.base import BaseHTTPMiddleware
 
 from sim_wish import simulate_wish
 from calc_stats import calc_stats 

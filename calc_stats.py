@@ -1,5 +1,3 @@
-import json
-
 def calc_stats(username, user_items):
     stats = {
         "5star": {"total": 0, "W": 0, "L": 0, "G": 0, "CR": 0, "average_pity": 0, "win_rate": 0, "total_pity": 0, "distribution": {}},
@@ -38,9 +36,3 @@ def calc_stats(username, user_items):
             stats[rank]['average_pity'] = stats[rank]['total_pity'] / stats[rank]['total']
 
     return stats
-    
-# with open('data.json', 'r') as f:
-#     pull_results_data = json.load(f)    
-# stats = calc_stats("Aqil", pull_results_data)
-# print(stats["5star"])    
-# print(stats["4star"])    
