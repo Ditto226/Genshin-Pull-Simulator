@@ -20,7 +20,7 @@ Follow these steps to clone the repository, spin up the backend server, and star
 
 ### 1. Clone the Repository
 ```bash
-git clone [https://github.com/your-username/your-repo-name.git](https://github.com/your-username/your-repo-name.git)
+git clone [https://github.com/Ditto226/Genshin-Pull-Simulator.git](https://github.com/Ditto226/Genshin-Pull-Simulator.git)
 cd your-repo-name
 ```
 
