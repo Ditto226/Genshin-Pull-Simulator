@@ -31,16 +31,12 @@ pip install fastapi uvicorn requests pydantic
 ```
 
 ### 3. Run the Application (Requires 2 Terminals)
-* **Terminal 1**: Start the Backend Server
-  
-  Launch the FastAPI server to initialize the SQLite database and handle the core gacha mechanics:
+* **Terminal 1**: Start the Backend Server. Launch the FastAPI server to initialize the SQLite database and handle the core gacha mechanics:
 ```bash
 python server.py
 ```
 
-* **Terminal 2**: Launch the Client Simulator
-  
-  Switch to a new terminal window to interact with the CLI:
+* **Terminal 2**: Launch the Client Simulator. Switch to a new terminal window to interact with the CLI:
 ```bash
 python client.py
 ```
