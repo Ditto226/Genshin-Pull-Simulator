@@ -1,1 +1,3 @@
 # Genshin-Pull-Simulator
+
+test
