@@ -1,0 +1,115 @@
+{
+    "6.0.1.1" : {
+        "5star": "Lauma",
+        "4star": ["Kuki Shinobu", "Barbara", "Kaveh"]
+    },
+    "6.0.1.2" : {
+        "5star": "Nahida",
+        "4star": ["Kuki Shinobu", "Barbara", "Kaveh"]
+    },
+    "6.0.2.1" : {
+        "5star": "Flins",
+        "4star": ["Aino", "Sucrose", "Dori"]
+    },
+    "6.0.2.2" : {
+        "5star": "Yelan",
+        "4star": ["Aino", "Sucrose", "Dori"]
+    },
+    "6.1.1.1" : {
+        "5star": "Nefer",
+        "4star": ["Yaoyao", "Xingqiu", "Collei"]
+    },
+    "6.1.1.2" : {
+        "5star": "Furina",
+        "4star": ["Yaoyao", "Xingqiu", "Collei"]
+    },
+    "6.1.2.1" : {
+        "5star": "Arlecchino",
+        "4star": ["Rosaria", "Lanyan", "Yunjin"]
+    },
+    "6.1.2.2" : {
+        "5star": "Zhongli",
+        "4star": ["Rosaria", "Lanyan", "Yunjin"]
+    },
+    "6.2.1.1" : {
+        "5star": "Durin",
+        "4star": ["Jahoda", "Bennet", "Faruzan"]
+    },
+    "6.2.1.2" : {
+        "5star": "Venti",
+        "4star": ["Jahoda", "Bennet", "Faruzan"]
+    },
+    "6.2.2.1" : {
+        "5star": "Varessa",
+        "4star": ["Iansan", "Chevreuse", "Gaming"]
+    },
+    "6.2.2.2" : {
+        "5star": "Xilonen",
+        "4star": ["Iansan", "Chevreuse", "Gaming"]
+    },
+    "6.3.1.1" : {
+        "5star": "Columbina",
+        "4star": ["Ifa", "Fischl", "Sethos"]
+    },
+    "6.3.1.2" : {
+        "5star": "Ineffa",
+        "4star": ["Ifa", "Fischl", "Sethos"]
+    },
+
+    "6.3.2.1" : {
+        "5star": "Zibai",
+        "4star": ["Aino", "Illuga", "Gorou"]
+    },
+    "6.3.2.2" : {
+        "5star": "Neuvilette",
+        "4star": ["Aino", "Illuga", "Gorou"]
+    },
+    "6.4.1.1" : {
+        "5star": "Varka",
+        "4star": ["Bennett", "Sucrose", "Xiangling"]
+    },
+    "6.4.1.2" : {
+        "5star": "Flins",
+        "4star": ["Bennett", "Sucrose", "Xiangling"]
+    },
+    "6.4.2.1" : {
+        "5star": "Skirk",
+        "4star": ["Charlotte", "Dahlia", "Candace"]
+    },
+    "6.4.2.2" : {
+        "5star": "Escoffier",
+        "4star": ["Charlotte", "Dahlia", "Candace"]
+    },
+    "6.5.1.1" : {
+        "5star": "Linnea",
+        "4star": ["Illuga", "Noelle", "Aino"]
+    },
+    "6.5.1.2" : {
+        "5star": "Chasca",
+        "4star": ["Illuga", "Noelle", "Aino"]
+    },
+    "6.5.2.1" : {
+        "5star": "Lauma",
+        "4star": ["Kirara", "Xingqiu", "Jahoda"]
+    },
+    "6.5.2.2" : {
+        "5star": "Nefer",
+        "4star": ["Kirara", "Xingqiu", "Jahoda"]
+    },
+    "6.6.1.1" : {
+        "5star": "Nicole",
+        "4star": ["Prune", "Fischl", "Razor"]
+    },
+    "6.6.1.2" : {
+        "5star": "Durin",
+        "4star": ["Prune", "Fischl", "Razor"]
+    },
+    "6.6.2.1" : {
+        "5star": "Lohen",
+        "4star": ["Mika", "Xiangling", "Bennett"]
+    },
+    "6.6.2.2" : {
+        "5star": "Mavuika",
+        "4star": ["Mika", "Xiangling", "Bennett"]
+    }
+}

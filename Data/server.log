@@ -1,0 +1,4 @@
+2026-06-03 02:14:50,391 | MainThread | INFO | [+] Database loaded from disk.
+2026-06-03 02:15:08,835 | MainThread | INFO | GET /user/Ditto
+2026-06-03 02:15:13,294 | MainThread | INFO | POST /user/Ditto/data
+2026-06-03 02:15:13,310 | MainThread | INFO | GET /user/Ditto/data

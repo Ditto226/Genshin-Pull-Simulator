@@ -1,0 +1,24 @@
+{
+    "5star": ["Mona","Diluc", "Jean", "Qiqi", "Keqing", "Tighnari", "Dehya", "Yumimizuki Mizuki"],
+
+    "4star": ["Aino", "Barbara", "Beidou", "Bennett", "Candace", "Charlotte", 
+                "Chevreuse", "Chongyun", "Collei", "Dahlia", "Diona", "Dori", "Faruzan", 
+                "Fischl", "Freminet", "Gaming", "Gorou", "Iansan", "Ifa", "Illuga", "Jahoda", "Kachina", 
+                "Kaveh", "Kirara", "Kujou Sara", "Kuki Shinobu", "Lan Yan", 
+                "Layla", "Lynette", "Mika", "Ningguang", "Noelle", 
+                "Ororon", "Prune", "Razor", "Rosaria", "Sayu", "Sethos", "Shikanoin Heizou", 
+                "Sucrose", "Thoma", "Xiangling", "Xingqiu", "Xinyan", "Yanfei", 
+                "Yaoyao", "Yun Jin",
+
+                "Lion's Roar", "The Flute", "Favonius Sword", "Sacrificial Sword",                    
+                "Rainslasher", "Favonius Greatsword", "Sacrificial Greatsword", "The Bell",           
+                "Dragon's Bane", "Favonius Lance",                                                    
+                "Eye of Perception", "Favonius Codex", "Sacrificial Fragments", "The Widsith",         
+                "Rust", "Sacrificial Bow", "Favonius Warbow", "The Stringless"],
+                
+    "3star": ["Cool Steel", "Harbinger of Dawn", "Skyrider Sword",            
+                "Ferrous Shadow", "Bloodtainted Greatsword", "Debate Club",     
+                "Black Tassel",                                                   
+                "Magic Guide", "Emerald Orb", "Thrilling Tales of Dragon Slayers",
+                "Raven Bow", "Sharpshooter's Oath", "Slingshot"]
+}
