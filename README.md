@@ -27,6 +27,7 @@ cd Genshin-Pull-Simulator
 
 ### 2. Run the server
 💡 Prerequisite: Make sure Docker Desktop is open and running on your machine.
+
 Launch the containerized FastAPI backend. This handles the database initialization and exposes the simulation APIs.
 ```bash
 docker compose up --build
