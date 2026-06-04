@@ -7,8 +7,6 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      # Maps your local Data folder to the container's Data folder.
-      # This ensures your sqlite database and server.log persist on your desktop
-      # even if the container is stopped or deleted!
+      # Maps the local Data folder to the container's Data folder.
       - ./Data:/app/Data
     restart: unless-stopped

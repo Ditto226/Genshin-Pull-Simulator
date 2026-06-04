@@ -9,13 +9,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Install the exact Python packages your code explicitly imports
-# This saves you from needing a requirements.txt file right now!
-RUN pip install --no-cache-dir \
-    fastapi==0.110.0 \
-    uvicorn==0.28.0 \
-    pydantic==2.6.4 \
-    requests==2.31.0
+# Copy the requirements file from your host machine into the container
+COPY requirements.txt .
+
+# Install the dependencies from the file
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the local project files into the container's working directory
 COPY . /app
@@ -23,6 +21,5 @@ COPY . /app
 # Expose port 8000 for the FastAPI server
 EXPOSE 8000
 
-# Run the server configuration. We override the host to 0.0.0.0 
-# so it can accept requests coming from outside the Docker container container.
+# Run the server configuration.
 CMD ["python", "Codes/server.py"]
