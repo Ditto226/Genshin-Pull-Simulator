@@ -6,13 +6,14 @@ A decoupled, full-stack simulation engine that models genshin gacha mechanics (p
 * **Decoupled Architecture:** Clean separation of concerns between an independent FastAPI backend service and a lightweight client CLI.
 * **State Persistence:** Custom SQLite layer tracking granular user profiles, pity systems, and queryable pull history logs.
 * **Robust Middlewares & Logging:** Incorporates request Interceptors for telemetry and thread-safe rolling file handlers.
+* **Dockerized Deployment**: Containerized backend for seamless, zero-config environment setup.
 
 ## 🛠 Tech Stack
-* **Backend:** Python, FastAPI, Pydantic, SQLite3, Uvicorn
+* **Backend:** Python, FastAPI, Pydantic, SQLite3, Uvicorn, Docker
 * **Frontend:** Python Requests CLI (Upgradeable to TUI)
 
 ## Credit
-* **capturing radiance mechanic** : https://www.reddit.com/r/Genshin_Impact/comments/1f3ykny/capturing_radiance_details_observations_and/
+* **Capturing Radiance Implementation** : Modeled based on community research and statistical data. Special thanks to the detailed breakdown found in this Reddit Analysis.https://www.reddit.com/r/Genshin_Impact/comments/1f3ykny/capturing_radiance_details_observations_and/
 
 ## 🚀 Quick Start & Usage
 
@@ -24,20 +25,16 @@ git clone https://github.com/Ditto226/Genshin-Pull-Simulator.git
 cd Genshin-Pull-Simulator
 ```
 
-### 2. Install Dependencies
-This project relies on a few external libraries. You can install them all in a single command:
+### 2. Run the server
+Launch the containerized FastAPI backend. This handles the database initialization and exposes the simulation APIs.
 ```bash
-pip install fastapi uvicorn requests pydantic
+docker compose up --build
 ```
 
-### 3. Run the Application (Requires 2 Terminals)
-* **Terminal 1**: Start the Backend Server. Launch the FastAPI server to initialize the SQLite database and handle the core gacha mechanics:
+### 3. Run the Application 
+Open a new terminal window, navigate to the source directory, and launch the interactive CLI.
 ```bash
-python server.py
-```
-
-* **Terminal 2**: Launch the Client Simulator. Switch to a new terminal window to interact with the CLI:
-```bash
+cd Codes
 python client.py
 ```
 
