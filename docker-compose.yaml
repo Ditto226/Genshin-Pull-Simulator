@@ -1,0 +1,14 @@
+# version: '3.8'
+
+services:
+  gacha-backend:
+    build: .
+    container_name: genshin_sim_server
+    ports:
+      - "8000:8000"
+    volumes:
+      # Maps your local Data folder to the container's Data folder.
+      # This ensures your sqlite database and server.log persist on your desktop
+      # even if the container is stopped or deleted!
+      - ./Data:/app/Data
+    restart: unless-stopped

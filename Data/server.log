@@ -2,3 +2,15 @@
 2026-06-03 02:15:08,835 | MainThread | INFO | GET /user/Ditto
 2026-06-03 02:15:13,294 | MainThread | INFO | POST /user/Ditto/data
 2026-06-03 02:15:13,310 | MainThread | INFO | GET /user/Ditto/data
+2026-06-04 08:01:16,329 | MainThread | INFO | [+] Database loaded from disk.
+2026-06-04 08:05:21,073 | MainThread | INFO | [+] Database loaded from disk.
+2026-06-04 08:10:55,292 | MainThread | INFO | GET /user/Aqil
+2026-06-04 08:11:03,065 | MainThread | INFO | GET /user/Ditto
+2026-06-04 08:11:03,080 | MainThread | INFO | GET /user/Ditto/data
+2026-06-04 08:11:18,041 | MainThread | INFO | GET /user/Ditto
+2026-06-04 08:11:18,061 | MainThread | INFO | GET /user/Ditto/data
+2026-06-04 08:11:22,580 | MainThread | INFO | POST /user/Ditto/pull
+2026-06-04 08:11:23,760 | MainThread | INFO | POST /user/Ditto/pull
+2026-06-04 08:11:26,776 | MainThread | INFO | POST /user/Ditto/pull
+2026-06-04 08:11:38,273 | MainThread | INFO | GET /user/Ditto/stats
+2026-06-04 08:11:44,426 | MainThread | INFO | PUT /user/Ditto/data

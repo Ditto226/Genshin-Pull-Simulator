@@ -1,8 +1,13 @@
 import random
 import json
+import os
+# from zipfile import Path
 
-standard_pools = 'Data\\standard_pools.json'
-banner = 'Data\\banner.json'
+standard_pools = os.path.join("Data", "standard_pools.json")
+banner = os.path.join("Data", "banner.json")
+
+# standard_pools = 'Data\\standard_pools.json'
+# banner = 'Data\\banner.json'
 
 with open(standard_pools, 'r') as f:
     standard_pools_data = json.load(f)

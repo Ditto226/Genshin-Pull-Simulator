@@ -98,7 +98,7 @@ def setup_server():
 
     init_db()
     logger.info("[+] Database loaded from disk.")    
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
 
 # --- DATA MODELS ---
@@ -232,10 +232,8 @@ def pull(username:str, request: PullRequest, conn: sqlite3.Connection = Depends(
     user_state["guaranteed_5"] = bool(user_state["guaranteed_5"])
     user_state["guaranteed_4"] = bool(user_state["guaranteed_4"])
 
-    # 2. Run your existing simulation logic algorithm
     updated_state = simulate_wish(request.frequency, user_state=user_state)
     
-    # 3. Update the user summary record
     conn.execute("""
         UPDATE users SET 
             pulls = ?, pity_5 = ?, pity_4 = ?, 
