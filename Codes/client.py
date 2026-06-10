@@ -2,14 +2,14 @@ import requests
 
 SERVER_URL = "http://127.0.0.1:8000"
 
-def send_request(method, endpoint, client_username=None, data=None):
+def send_request(method, endpoint, client_username=None, data=None, params = None):
     url = f"{SERVER_URL}{endpoint}"
     headers = {"Content-Type": "application/json"}
-    if client_username:
-        headers["X-User"] = client_username
+    # if client_username:
+    #     headers["X-User"] = client_username
 
     try:
-        if method.upper() == "GET": response = requests.get(url, headers=headers)
+        if method.upper() == "GET": response = requests.get(url, headers=headers, params=params)
         elif method.upper() == "POST": response = requests.post(url, headers=headers, json=data)
         elif method.upper() == "PUT": response = requests.put(url, headers=headers, json=data)
         elif method.upper() == "PATCH": response = requests.patch(url, headers=headers, json=data)
@@ -118,15 +118,40 @@ def handle_pulls(username, choice):
         return result.get('data', {}), new_items
     return None
 
-def view_history(user_data):
-    items = user_data.get('items', [])
-    if not items:
-        print("No history found. Try pulling first!")
-        return
-    for idx, item in enumerate(items, 1):
-        status_str = f"{item['status']}" if item.get('status') else ""
-        pity_str = f"{item['pity']}" if item.get('pity') else ""
-        print(f"{idx}. {item['rarity']}* {item['name']} {status_str}{pity_str}")
+def view_items(username):
+    print("Press Enter to view all items, or type 'y' to filter results:")
+    params = {}
+    if input().strip().lower() == "y":
+        while True:
+            rarity = input("Rarity (3,4,5) : (Enter to skip) ").strip()
+            if rarity == '':
+                break
+            elif int(rarity) in [3, 4, 5]:
+                params["rarity"] = rarity
+                break  
+            print("[-] Input out of bounds. Try again.")
+
+        while True:
+            status = input("Status (G/W/L): (Enter to skip) ").strip().upper()
+            if status == '':
+                break
+            elif status in ['G', 'W', 'L']:
+                params["status"] = status
+                break  
+            print("[-] Input out of bounds. Try again.")
+        
+        print("")
+        
+    result = send_request("GET", f"/user/{username}/items", params = params)
+    if result is not None:
+        items = result.get('items', [])
+        if not items:
+            print("No items found, try pulling more!")
+
+        for idx, item in enumerate(items, 1):
+            status_str = f"{item['status']}" if item.get('status') else ""
+            pity_str = f"{item['pity']}" if item.get('pity') else ""
+            print(f"{idx}. {item['rarity']}* {item['name']} {status_str}{pity_str}")
 
 def view_stats(username):
     result = send_request("GET", f"/user/{username}/stats")
@@ -154,15 +179,16 @@ def handle_reset(username):
 # --- CORE GAME LOOP CONTROL ---
 def game_loop(username):
     """Manages the logged-in gameplay state. Returns True to exit game entirely, False to Logout."""
-    user_state = send_request("GET", f"/user/{username}/data")
-    if user_state is None:
-        print("Could not load user data from the server.")
-        return False # Boot back to login screen
-
-    user_data = user_state.get('data', {}) 
-    featured_info = user_state.get('featured', '') 
 
     while True:
+
+        user_state = send_request("GET", f"/user/{username}/data")
+        if user_state is None:
+            print("Could not load user data from the server.")
+            return False # Boot back to login screen
+        user_data = user_state.get('data', {}) 
+        featured_info = user_state.get('featured', '') 
+
         print(f"\n")
         print("-"*104)
         print(f"Username: {username} | Banner Selected: {user_data.get('banner_version', '')} {featured_info}")
@@ -176,32 +202,22 @@ def game_loop(username):
                        "1 : pull 1 time\n"
                        "2 : pull 10 times\n"
                        "3 : pull a custom number of times\n"
-                       "4 : view history\n"
+                       "4 : view pulled items\n"
                        "5 : view stats\n"
                        "6 : reset account\n"
                        "7 : logout account\n"
                        "Any other key to exit\n\n > ").strip()
         
         if choice == '0':
-            banner_res = handle_change_banner(username)
-            if banner_res:
-                user_data['banner_version'], featured_info = banner_res
+            handle_change_banner(username)
         elif choice in ('1', '2', '3'):
-            pull_result = handle_pulls(username, choice)
-            if pull_result:
-                state_delta, new_items = pull_result
-                user_data.update(state_delta)
-                if "items" not in user_data:
-                    user_data["items"] = []
-                user_data['items'].extend(new_items)
+            handle_pulls(username, choice)
         elif choice == '4':
-            view_history(user_data)
+            view_items(username)
         elif choice == '5':
             view_stats(username)
         elif choice == '6':
-            updated_data = handle_reset(username)
-            if updated_data: 
-                user_data, featured_info = updated_data
+            handle_reset(username)
         elif choice == '7':
             print(f"Logging out of '{username}'...")
             return False  # Tells the outer wrapper: "Go back to login loop"
@@ -218,7 +234,6 @@ def login():
 
         data = send_request("GET", f"/user/{username}")
 
-        # Account registration if user doesn't exist
         if data is None:
             print(f"User '{username}' not found. Create account? (y/n)")
             if input().lower() == 'y':

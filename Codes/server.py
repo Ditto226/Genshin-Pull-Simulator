@@ -14,11 +14,11 @@ from calc_stats import calc_stats
 app = FastAPI(title="Gacha Simulator API")
 
 # Server State
+DB_FILE = os.path.join("Data", "server.db")
 banner_json = os.path.join("Data", "banner.json")
 banner_data = {}
 latest_banner = ""
 logger = logging.getLogger("Genshin_Sim_Server")
-DB_FILE = os.path.join("Data", "server.db")
 
 def get_db_connection():
     """Returns a connection to the SQLite database with row factory enabled."""
@@ -124,6 +124,27 @@ def get_user(username: str, conn: sqlite3.Connection = Depends(get_db_connection
 
 @app.get("/user/{username}/data")
 def get_user_data(username: str, conn: sqlite3.Connection = Depends(get_db_connection)):
+        user_row = conn.execute(
+            "SELECT * FROM users WHERE username = ?", (username,)
+        ).fetchone()
+        
+        if not user_row:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        # Build payload back to the structure the client expects
+        user_dict = dict(user_row)
+        user_dict["guaranteed_5"] = bool(user_dict["guaranteed_5"])
+        user_dict["guaranteed_4"] = bool(user_dict["guaranteed_4"])
+        
+        # Format featured string banner details
+        b_info = banner_data.get(user_dict['banner_version'], {"5star": "", "4star": []})
+        featured = f"({b_info.get('5star')}) ({', '.join(b_info.get('4star', []))})"
+        
+        return {"data": user_dict, "featured": featured}
+
+
+@app.get("/user/{username}/items")
+def get_user_items(username: str, conn: sqlite3.Connection = Depends(get_db_connection)):
         # 1. Fetch user state
         user_row = conn.execute(
             "SELECT * FROM users WHERE username = ?", (username,)
@@ -137,18 +158,8 @@ def get_user_data(username: str, conn: sqlite3.Connection = Depends(get_db_conne
             "SELECT name, rarity, status, pity FROM pull_items WHERE username = ?", 
             (username,)
         ).fetchall()
-
-        # Build your payload back to the structure the client expects
-        user_dict = dict(user_row)
-        user_dict["guaranteed_5"] = bool(user_dict["guaranteed_5"])
-        user_dict["guaranteed_4"] = bool(user_dict["guaranteed_4"])
-        user_dict["items"] = [dict(item) for item in item_rows]
         
-        # Format featured string banner details
-        b_info = banner_data.get(user_dict['banner_version'], {"5star": "", "4star": []})
-        featured = f"({b_info.get('5star')}) ({', '.join(b_info.get('4star', []))})"
-        
-        return {"data": user_dict, "featured": featured}
+        return {"items": [dict(item) for item in item_rows]}
     
 
 @app.post("/user/{username}/data", status_code=201)
