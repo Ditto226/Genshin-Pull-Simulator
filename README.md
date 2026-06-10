@@ -10,10 +10,12 @@ A decoupled, full-stack simulation engine that models genshin gacha mechanics (p
 
 ## 🛠 Tech Stack
 * **Backend:** Python, FastAPI, Pydantic, SQLite3, Uvicorn, Docker
-* **Frontend:** Python Requests CLI (Upgradeable to TUI)
+* **Frontend:** Python Requests CLI 
 
 ## Credit
-* **Capturing Radiance Implementation** : Modeled based on community research and statistical data. Special thanks to the detailed breakdown found in this Reddit Analysis.https://www.reddit.com/r/Genshin_Impact/comments/1f3ykny/capturing_radiance_details_observations_and/
+* **Capturing Radiance Implementation** : Modeled based on community research and statistical data. Special thanks to the detailed breakdown found in this Reddit Analysis.
+
+https://www.reddit.com/r/Genshin_Impact/comments/1f3ykny/capturing_radiance_details_observations_and/
 
 ## 🚀 Quick Start & Usage
 
@@ -36,8 +38,7 @@ docker compose up --build
 ### 3. Run the Application 
 Open a new terminal window, navigate to the source directory, and launch the interactive CLI.
 ```bash
-cd Codes
-python client.py
+python Codes/client.py
 ```
 
 ### 4. Start Simulating!
