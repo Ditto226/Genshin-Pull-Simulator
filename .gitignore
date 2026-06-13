@@ -1,3 +1,1 @@
-__pycache__/
-Data/server.db
-Data/server.log
+Backend/__pycache__/*

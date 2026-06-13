@@ -132,14 +132,23 @@ def view_items(username):
             print("[-] Input out of bounds. Try again.")
 
         while True:
-            status = input("Status (G/W/L): (Enter to skip) ").strip().upper()
+            status = input("Status (G/W/L/CR): (Enter to skip) ").strip().upper()
             if status == '':
                 break
-            elif status in ['G', 'W', 'L']:
+            elif status in ['G', 'W', 'L', 'CR']:
                 params["status"] = status
                 break  
             print("[-] Input out of bounds. Try again.")
         
+        while True:
+            pity = input("Pity: (Enter to skip) ").strip()
+            if pity == '':
+                break
+            elif pity.isdigit() and 1 <= int(pity) <= 89:
+                params["pity"] = int(pity)
+                break
+            print("[-] Input out of bounds. Try again.")
+                
         print("")
         
     result = send_request("GET", f"/user/{username}/items", params = params)
@@ -153,14 +162,39 @@ def view_items(username):
             pity_str = f"{item['pity']}" if item.get('pity') else ""
             print(f"{idx}. {item['rarity']}* {item['name']} {status_str}{pity_str}")
 
+def handle_simulate_distribution(username):
+    try:
+        num_pulls = int(input("How many pulls you like to test?  > ").strip())
+        if num_pulls <= 0: return None
+    except ValueError:
+        print("Please enter a valid integer.")
+        return None
+    
+    print("Simulating pull distribution, this may take a while (10k simulations)...")
+    result = send_request("GET", f"/user/{username}/distribution", params={"frequency": num_pulls})
+    if result is not None:
+        print("\n--- Featured 5* Distribution ---")
+        prob5 = result.get('5star_distribution', {})
+        sorted_prob5 = dict(sorted(prob5.items(), key=lambda x: int(x[0])))  # Sort by count (convert keys to int)
+        for count, prob in sorted_prob5.items():
+            if prob > 0.001:
+                print(f"{count}: {prob:.2%}")
+        
+        print("\n--- Individual Featured 4* Distribution ---")
+        prob4 = result.get('4star_distribution', {})
+        sorted_prob4 = dict(sorted(prob4.items(), key=lambda x: int(x[0])))  # Sort by count (convert keys to int)
+        for count, prob in sorted_prob4.items():
+            if prob > 0.001:
+                print(f"{count}: {prob:.2%}")
+
 def view_stats(username):
     result = send_request("GET", f"/user/{username}/stats")
     if result is not None:
         total_pulls = result['5star']['total'] + result['4star']['total'] + result['3star']['total']
         print(f"\nTotal Pulls: {total_pulls}")
-        print(f"\n5* | Total: {result['5star']['total']}  W: {result['5star']['W']}  L: {result['5star']['L']} | Average Pity: {result['5star']['average_pity']:.2f} | Win Rate: {result['5star']['win_rate']:.2f}%")
+        print(f"\n5* | Total: {result['5star']['total']}  W: {result['5star']['W']}  L: {result['5star']['L']}  G: {result['5star']['G']}  CR: {result['5star']['CR']} | Average Pity: {result['5star']['average_pity']:.2f} | Win Rate: {result['5star']['win_rate']:.2f}%")
         for name, count in result['5star']['distribution'].items(): print(f"     {name}: {count}")
-        print(f"\n4* | Total: {result['4star']['total']}  W: {result['4star']['W']}  L: {result['4star']['L']} | Average Pity: {result['4star']['average_pity']:.2f} | Win Rate: {result['4star']['win_rate']:.2f}%")
+        print(f"\n4* | Total: {result['4star']['total']}  W: {result['4star']['W']}  L: {result['4star']['L']}  G: {result['4star']['G']} | Average Pity: {result['4star']['average_pity']:.2f} | Win Rate: {result['4star']['win_rate']:.2f}%")
         for name, count in result['4star']['distribution'].items(): print(f"     {name}: {count}")
         print(f"\n3* | Total: {result['3star']['total']}")
 
@@ -204,8 +238,9 @@ def game_loop(username):
                        "3 : pull a custom number of times\n"
                        "4 : view pulled items\n"
                        "5 : view stats\n"
-                       "6 : reset account\n"
-                       "7 : logout account\n"
+                       "6 : simulate pull distribution\n"
+                       "7 : reset account\n"
+                       "8 : logout account\n"
                        "Any other key to exit\n\n > ").strip()
         
         if choice == '0':
@@ -217,8 +252,10 @@ def game_loop(username):
         elif choice == '5':
             view_stats(username)
         elif choice == '6':
-            handle_reset(username)
+            handle_simulate_distribution(username)
         elif choice == '7':
+            handle_reset(username)
+        elif choice == '8':
             print(f"Logging out of '{username}'...")
             return False  # Tells the outer wrapper: "Go back to login loop"
         else:

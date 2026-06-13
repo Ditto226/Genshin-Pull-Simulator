@@ -3,19 +3,23 @@ import json
 import sqlite3
 import logging
 from logging.handlers import RotatingFileHandler
-from typing import Optional
-from fastapi import Depends, FastAPI, HTTPException, status, Request
+import time
+from typing import Any, List, Optional
+from fastapi import Depends, FastAPI, HTTPException, Query, status, Request
 from pydantic import BaseModel, Field
 import uvicorn
 
-from sim_wish import simulate_wish
-from calc_stats import calc_stats 
+from _game_logic import simulate_wish, calc_stats , simulate_distribution
 
-app = FastAPI(title="Gacha Simulator API")
+app = FastAPI(
+    title="Genshin Wish Simulator API",
+    description="An API to simulate gacha pulls, pity systems, and drop rates.",
+    version="1.0.0"
+)
 
 # Server State
 DB_FILE = os.path.join("Data", "server.db")
-banner_json = os.path.join("Data", "banner.json")
+banner_json = os.path.join("Assets", "banner.json")
 banner_data = {}
 latest_banner = ""
 logger = logging.getLogger("Genshin_Sim_Server")
@@ -70,8 +74,14 @@ def init_db():
 async def log_requests(request: Request, call_next):
     # username = request.headers.get("X-User", "Anonymous")
     # username = request.query_params.get("username", "Anonymous")
-    logger.info(f"{request.method} {request.url.path}")
+    start_time = time.time()
     response = await call_next(request)
+    process_time = (time.time() - start_time) * 1000
+
+    url_with_params = f"{request.url.path}"
+    # if request.url.query:
+    #     url_with_params += f"?{request.url.query}"
+    logger.info(f"{request.method} {url_with_params} | Status: {response.status_code} | Duration: {process_time:.2f}ms")
     return response
 
 # --- INITIALIZATION LOGIC ---
@@ -93,8 +103,8 @@ def setup_server():
         latest_banner = list(banner_data.keys())[-1]
     except Exception as e:
         logger.error(f"Failed to load banner data: {e}")
-        banner_data = {"default_banner": {"5star": "Standard Character", "4star": ["Weapon A", "Weapon B"]}}
-        latest_banner = "default_banner"
+        banner_data = {"6.0.1.1": {"5star": "Lauma", "4star": ["Kuki Shinobu", "Barbara", "Kaveh"]}}
+        latest_banner = "6.0.1.1"
 
     init_db()
     logger.info("[+] Database loaded from disk.")    
@@ -144,7 +154,13 @@ def get_user_data(username: str, conn: sqlite3.Connection = Depends(get_db_conne
 
 
 @app.get("/user/{username}/items")
-def get_user_items(username: str, conn: sqlite3.Connection = Depends(get_db_connection)):
+def get_user_items(
+    username: str, 
+    rarity: Optional[int] = Query(None),
+    status: Optional[str] = Query(None),
+    pity: Optional[int] = Query(None),
+    conn: sqlite3.Connection = Depends(get_db_connection)):
+        
         # 1. Fetch user state
         user_row = conn.execute(
             "SELECT * FROM users WHERE username = ?", (username,)
@@ -153,14 +169,52 @@ def get_user_items(username: str, conn: sqlite3.Connection = Depends(get_db_conn
         if not user_row:
             raise HTTPException(status_code=404, detail="User not found")
         
-        # 2. Fetch user pull history items
-        item_rows = conn.execute(
-            "SELECT name, rarity, status, pity FROM pull_items WHERE username = ?", 
-            (username,)
-        ).fetchall()
+        query = "SELECT name, rarity, status, pity FROM pull_items WHERE username = ?"
+        query_params: List[Any] = [username]
+
+        if rarity is not None:
+            query += " AND rarity = ?"
+            query_params.append(rarity)
         
+        if status is not None:
+            query += " AND status = ?"
+            query_params.append(status)
+            
+        if pity is not None:
+            query += " AND pity = ?"
+            query_params.append(pity)
+
+        # 2. Fetch user pull history items
+        item_rows = conn.execute(query, query_params).fetchall()
+
         return {"items": [dict(item) for item in item_rows]}
     
+@app.get("/user/{username}/stats")
+def get_stats(username: str, conn: sqlite3.Connection = Depends(get_db_connection)):
+    user_row = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+    if not user_row:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user_items = conn.execute("SELECT * FROM pull_items WHERE username = ?", (username,)).fetchall()
+    return calc_stats(user_items)
+
+@app.get("/user/{username}/distribution")
+def get_dist(username: str, frequency: int = Query(...), conn: sqlite3.Connection = Depends(get_db_connection)):
+    user_row = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
+    if not user_row:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    user_state = dict(user_row)
+
+    user_state["guaranteed_5"] = bool(user_state["guaranteed_5"])
+    user_state["guaranteed_4"] = bool(user_state["guaranteed_4"])
+    prob_dist_5, prob_dist_4 = simulate_distribution(frequency, user_state)
+
+    return {"5star_distribution": prob_dist_5, "4star_distribution": prob_dist_4}
+
+@app.get("/banner")
+def get_banner():
+    return {"status": "success", 'banner': banner_data}
 
 @app.post("/user/{username}/data", status_code=201)
 def create_account(username: str, request: Optional[CustomSetting] = None, conn: sqlite3.Connection = Depends(get_db_connection)):
@@ -172,6 +226,7 @@ def create_account(username: str, request: Optional[CustomSetting] = None, conn:
             (username, latest_banner, settings.pity_4, settings.pity_5, int(settings.guaranteed_4), int(settings.guaranteed_5), settings.cr_count)
         )
         conn.commit()
+
         b_info = banner_data[latest_banner]
         featured = f"({b_info['5star']}) ({', '.join(b_info['4star'])})"
         return {
@@ -188,53 +243,11 @@ def create_account(username: str, request: Optional[CustomSetting] = None, conn:
     except sqlite3.IntegrityError:
         raise HTTPException(status_code=400, detail="User already exists")
 
-@app.put("/user/{username}/data")
-def reset_account(username: str, request: Optional[CustomSetting] = None, conn: sqlite3.Connection = Depends(get_db_connection)):
-    settings = request if request is not None else CustomSetting()
-    user_exists = conn.execute(
-        "SELECT 1 FROM users WHERE username = ?", (username,)
-    ).fetchone()
-
-    if not user_exists:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    conn.execute("DELETE FROM pull_items WHERE username = ?", (username,))
-
-    conn.execute("""
-        UPDATE users SET 
-            pulls = 0,
-            banner_version = ?,
-            pity_5 = ?,
-            pity_4 = ?,
-            guaranteed_5 = ?,
-            guaranteed_4 = ?,
-            cr_count = ?
-        WHERE username = ?
-    """, (latest_banner, settings.pity_5, settings.pity_4, int(settings.guaranteed_5), int(settings.guaranteed_4), settings.cr_count, username))
-
-    conn.commit()
-    # return {"status": "success", "message": "Account reset"}
-    b_info = banner_data[latest_banner]
-    featured = f"({b_info['5star']}) ({', '.join(b_info['4star'])})"
-    return {
-        "status": "success", 
-        "message": "Account reset",
-        "user_data": {
-            "pulls": 0, "banner_version": latest_banner, "items": [],
-            "pity_5": settings.pity_5, "pity_4": settings.pity_4,
-            "guaranteed_5": bool(settings.guaranteed_5), "guaranteed_4": bool(settings.guaranteed_4),
-            "cr_count": settings.cr_count
-        },
-        "featured": featured
-    }
-
 class PullRequest(BaseModel):
     frequency: int
 
-# @app.post("/pull")
 @app.post("/user/{username}/pull")
 def pull(username:str, request: PullRequest, conn: sqlite3.Connection = Depends(get_db_connection)):
-    # 1. Fetch the current state from DB to pass into your simulation engine
     user_row = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
     if not user_row:
         raise HTTPException(status_code=404, detail="User not found")
@@ -282,19 +295,45 @@ def pull(username:str, request: PullRequest, conn: sqlite3.Connection = Depends(
         "newly_pulled": new_items 
     }
 
-@app.get("/user/{username}/stats")
-def get_stats(username: str, conn: sqlite3.Connection = Depends(get_db_connection)):
-    # with get_db_connection() as conn:
-    user_row = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
-    if not user_row:
+@app.put("/user/{username}/data")
+def reset_account(username: str, request: Optional[CustomSetting] = None, conn: sqlite3.Connection = Depends(get_db_connection)):
+    settings = request if request is not None else CustomSetting()
+    user_exists = conn.execute(
+        "SELECT 1 FROM users WHERE username = ?", (username,)
+    ).fetchone()
+
+    if not user_exists:
         raise HTTPException(status_code=404, detail="User not found")
 
-    user_items = conn.execute("SELECT * FROM pull_items WHERE username = ?", (username,)).fetchall()
-    return calc_stats(username, user_items)
+    conn.execute("DELETE FROM pull_items WHERE username = ?", (username,))
 
-@app.get("/banner")
-def get_banner():
-    return {"status": "success", 'banner': banner_data}
+    conn.execute("""
+        UPDATE users SET 
+            pulls = 0,
+            banner_version = ?,
+            pity_5 = ?,
+            pity_4 = ?,
+            guaranteed_5 = ?,
+            guaranteed_4 = ?,
+            cr_count = ?
+        WHERE username = ?
+    """, (latest_banner, settings.pity_5, settings.pity_4, int(settings.guaranteed_5), int(settings.guaranteed_4), settings.cr_count, username))
+
+    conn.commit()
+    # return {"status": "success", "message": "Account reset"}
+    b_info = banner_data[latest_banner]
+    featured = f"({b_info['5star']}) ({', '.join(b_info['4star'])})"
+    return {
+        "status": "success", 
+        "message": "Account reset",
+        "user_data": {
+            "pulls": 0, "banner_version": latest_banner, "items": [],
+            "pity_5": settings.pity_5, "pity_4": settings.pity_4,
+            "guaranteed_5": bool(settings.guaranteed_5), "guaranteed_4": bool(settings.guaranteed_4),
+            "cr_count": settings.cr_count
+        },
+        "featured": featured
+    }
 
 class BannerRequest(BaseModel):
     banner_version: str
@@ -304,7 +343,6 @@ def change_banner(username: str, request:BannerRequest, conn: sqlite3.Connection
     if request.banner_version not in banner_data:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Selected banner version does not exist")
 
-    # with get_db_connection() as conn:
     user_row = conn.execute("SELECT * FROM users WHERE username = ?", (username,)).fetchone()
     if not user_row:
         raise HTTPException(status_code=404, detail="User not found")

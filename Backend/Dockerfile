@@ -22,4 +22,4 @@ COPY . /app
 EXPOSE 8000
 
 # Run the server configuration.
-CMD ["python", "Codes/server.py"]
+CMD ["python", "_server.py"]
