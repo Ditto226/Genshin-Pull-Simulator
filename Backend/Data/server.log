@@ -36,3 +36,29 @@
 2026-06-13 13:48:33,805 | MainThread | INFO | GET /user/Ditto/data | Status: 200 | Duration: 7.03ms
 2026-06-13 13:48:44,770 | MainThread | INFO | GET /user/Ditto/distribution | Status: 200 | Duration: 2522.46ms
 2026-06-13 13:48:44,788 | MainThread | INFO | GET /user/Ditto/data | Status: 200 | Duration: 8.56ms
+2026-06-15 01:29:04,164 | MainThread | INFO | [+] Database loaded from disk.
+2026-06-15 01:29:22,065 | MainThread | INFO | GET /user/Ditto | Status: 200 | Duration: 4.00ms
+2026-06-15 01:29:22,071 | MainThread | INFO | GET /user/Ditto/data | Status: 200 | Duration: 2.06ms
+2026-06-15 01:29:37,473 | MainThread | INFO | GET /user/Ditto/data | Status: 200 | Duration: 4.00ms
+2026-06-15 01:33:27,992 | MainThread | INFO | [+] Database loaded from disk.
+2026-06-15 01:33:48,740 | MainThread | INFO | GET /user/Ditto/distribution | Status: 200 | Duration: 12060.43ms
+2026-06-15 01:33:48,747 | MainThread | INFO | GET /user/Ditto/data | Status: 200 | Duration: 2.00ms
+2026-06-15 01:35:15,415 | MainThread | INFO | GET /user/Ditto/distribution | Status: 200 | Duration: 1146.41ms
+2026-06-15 01:35:15,424 | MainThread | INFO | GET /user/Ditto/data | Status: 200 | Duration: 4.01ms
+2026-06-15 01:35:28,877 | MainThread | INFO | GET /user/Ditto | Status: 200 | Duration: 2.00ms
+2026-06-15 01:35:28,883 | MainThread | INFO | GET /user/Ditto/data | Status: 200 | Duration: 2.00ms
+2026-06-15 01:35:51,632 | MainThread | INFO | GET /user/Ditto/distribution | Status: 200 | Duration: 18418.33ms
+2026-06-15 01:35:51,642 | MainThread | INFO | GET /user/Ditto/data | Status: 200 | Duration: 3.00ms
+2026-06-15 01:36:33,076 | MainThread | INFO | [+] Database loaded from disk.
+2026-06-15 01:36:44,306 | MainThread | INFO | GET /user/Ditto/distribution | Status: 200 | Duration: 1829.56ms
+2026-06-15 01:36:44,316 | MainThread | INFO | GET /user/Ditto/data | Status: 200 | Duration: 4.00ms
+2026-06-15 01:38:12,146 | MainThread | INFO | GET /user/Ditto2 | Status: 404 | Duration: 3.00ms
+2026-06-15 01:38:31,842 | MainThread | INFO | POST /user/Ditto2/data | Status: 201 | Duration: 14.97ms
+2026-06-15 01:38:31,851 | MainThread | INFO | GET /user/Ditto2/data | Status: 200 | Duration: 4.00ms
+2026-06-15 01:38:51,395 | MainThread | INFO | GET /user/Ditto2/distribution | Status: 200 | Duration: 1182.27ms
+2026-06-15 01:38:51,402 | MainThread | INFO | GET /user/Ditto2/data | Status: 200 | Duration: 2.00ms
+2026-06-15 01:41:04,289 | MainThread | INFO | [+] Database loaded from disk.
+2026-06-15 01:41:31,490 | MainThread | INFO | GET /user/Ditto2/distribution | Status: 200 | Duration: 12003.01ms
+2026-06-15 01:41:31,498 | MainThread | INFO | GET /user/Ditto2/data | Status: 200 | Duration: 3.08ms
+2026-06-15 01:44:21,232 | MainThread | INFO | GET /user/Ditto2/distribution | Status: 200 | Duration: 18146.50ms
+2026-06-15 01:44:21,239 | MainThread | INFO | GET /user/Ditto2/data | Status: 200 | Duration: 2.02ms
