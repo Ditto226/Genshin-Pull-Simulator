@@ -11,22 +11,31 @@ with open(standard_pools, 'r') as f:
 with open(banner, 'r') as f:
     banner_data = json.load(f)
 
-def simulate_wish(num_wishes, user_state):
+def simulate_wish(num_wishes, user_state, lightweight=False):
 
     pity_5, pity_4 = user_state.get('pity_5', 0) , user_state.get('pity_4', 0)
     guaranteed_5, guaranteed_4 = user_state.get('guaranteed_5', False), user_state.get('guaranteed_4', False)
     cr_count = user_state.get('cr_count', 1)
     banner = user_state.get('banner_version', list(banner_data.keys())[-1])  
     CR_TRIGGER_RATES = [0.0, 0.0, 0.09091, 1.0]
+    
     results = []
+    featured_5_count = 0
+    featured_4_count = 0
+    featured_5_star = []
+    featured_4_star = []
+    non_featured_5_stars = []
+    non_featured_4_stars = []
+    standard_3_stars = []
 
-    standard_5_stars = standard_pools_data['5star']
-    standard_4_stars = standard_pools_data['4star']
-    standard_3_stars = standard_pools_data['3star']
-    featured_5_star = banner_data[banner]['5star']
-    featured_4_star = banner_data[banner]['4star']
-    non_featured_5_stars = [char for char in standard_5_stars if char not in featured_5_star]
-    non_featured_4_stars = [char for char in standard_4_stars if char not in featured_4_star]
+    if not lightweight:
+        standard_5_stars = standard_pools_data['5star']
+        standard_4_stars = standard_pools_data['4star']
+        standard_3_stars = standard_pools_data['3star']
+        featured_5_star = banner_data[banner]['5star']
+        featured_4_star = banner_data[banner]['4star']
+        non_featured_5_stars = [char for char in standard_5_stars if char not in featured_5_star]
+        non_featured_4_stars = [char for char in standard_4_stars if char not in featured_4_star]
 
     for _ in range(num_wishes):
         pity_5 += 1
@@ -37,102 +46,72 @@ def simulate_wish(num_wishes, user_state):
         r = random.random()
         # 5-STAR LOGIC
         if r < rate_5:
+            # guaranteed
             if guaranteed_5:
-                # character = random.choice(featured_5_star)
-                pull_entry = {
-                    "name": featured_5_star,
-                    "rarity": 5,
-                    "status": "G" ,
-                    "pity": pity_5,
-                }
-                results.append(pull_entry)
-                # pull_counts["5star"]["total_featured"] += 1 
+                if lightweight:
+                    featured_5_count += 1
+                else:
+                    results.append({"name": featured_5_star, "rarity": 5, "status": "G", "pity": pity_5})               
                 guaranteed_5 = False
+            # trigger CR
             elif random.random() < CR_TRIGGER_RATES[min(cr_count, 3)]:   
-                    # character = random.choice(featured_5_star)
-                    pull_entry = {
-                        "name": featured_5_star,
-                        "rarity": 5,
-                        "status": "CR",
-                        "pity": pity_5,
-                    }
-                    results.append(pull_entry)
-                    # pull_counts["5star"]["total_featured"] += 1 
+                    if lightweight:
+                        featured_5_count += 1
+                    else:
+                        results.append({"name": featured_5_star, "rarity": 5, "status": "CR", "pity": pity_5}) 
+                    guaranteed_5 = False
                     cr_count = 1
+            # win 5050
             elif random.random() < 0.5 :
-                # character = random.choice(featured_5_star)
-                pull_entry = {
-                    "name": featured_5_star,
-                    "rarity": 5,
-                    "status": "W", 
-                    "pity": pity_5,
-                }
-                results.append(pull_entry)
-                # pull_counts["5star"]["total_featured"] += 1
+                if lightweight:
+                    featured_5_count += 1
+                else:
+                    results.append({"name": featured_5_star, "rarity": 5, "status": "W", "pity": pity_5}) 
                 cr_count = max(0, cr_count - 1)
+            # loss 5050
             else:
-                # Standard Loss
-                character = random.choice(non_featured_5_stars)
-                pull_entry = {
-                    "name": character,
-                    "rarity": 5,
-                    "status": "L",
-                    "pity": pity_5
-                }
-                results.append(pull_entry)
-                # pull_counts["5star"]["total_nonfeatured"] += 1
+                if lightweight:
+                    featured_5_count += 1
+                else:
+                    character = random.choice(non_featured_5_stars)
+                    results.append({"name": character, "rarity": 5, "status": "L", "pity": pity_5}) 
                 guaranteed_5 = True
                 cr_count = min(3, cr_count + 1)
             pity_5 = 0
 
         # 4-STAR LOGIC
         elif r < (rate_5 + rate_4):
+            # guaranteed
             if guaranteed_4:
-                character = random.choice(featured_4_star)
-                pull_entry = {
-                    "name": character,
-                    "rarity": 4,
-                    "status": "G",
-                    "pity": pity_4
-                }
-                results.append(pull_entry)
-                # pull_counts["4star"]["total_featured"] += 1
+                if lightweight:
+                    # Roll 1/3 chance for the specific target 4-star
+                    if random.randint(1, 3) == 1:
+                        featured_4_count += 1
+                else:
+                    character = random.choice(featured_4_star)
+                    results.append({"name": character, "rarity": 4, "status": "G", "pity": pity_4})
                 guaranteed_4 = False 
+            # win 5050
             elif random.random() < 0.5:
-                character = random.choice(featured_4_star)
-                pull_entry = {
-                    "name": character,
-                    "rarity": 4,
-                    "status": "W",
-                    "pity": pity_4
-                }
-                results.append(pull_entry)
-                # pull_counts["4star"]["total_featured"] += 1
+                if lightweight:
+                    if random.randint(1, 3) == 1:
+                        featured_4_count += 1
+                else:
+                    character = random.choice(featured_4_star)
+                    results.append({"name": character, "rarity": 4, "status": "W", "pity": pity_4})
+            # loss 5050
             else:    
-                character = random.choice(non_featured_4_stars)
-                pull_entry = {
-                    "name": character,
-                    "rarity": 4,
-                    "status": "L",
-                    "pity": pity_4
-                }
-                results.append(pull_entry)
-                #  pull_counts["4star"]["total_nonfeatured"] += 1
-                guaranteed_4 = True 
+                if not lightweight:
+                    character = random.choice(non_featured_4_stars)
+                    results.append({"name": character, "rarity": 4, "status": "L", "pity": pity_4})
+                    guaranteed_4 = True 
             pity_4 = 0  
 
         else:
-            character = random.choice(standard_3_stars)
-            pull_entry = {
-                "name": character,
-                "rarity": 3,
-                "status": None,
-                "pity": None
-            }
-            results.append(pull_entry)
-            # pull_counts["3star"]["total"] += 1
+            if not lightweight:
+                character = random.choice(standard_3_stars)
+                results.append({"name": character, "rarity": 3, "status": None, "pity": None})
 
-    # user_state.setdefault('items', []).extend(results)
     user_state['items'] = results
     user_state['pulls'] += num_wishes
     user_state['pity_5'] = pity_5
@@ -140,11 +119,15 @@ def simulate_wish(num_wishes, user_state):
     user_state['guaranteed_5'] = guaranteed_5
     user_state['guaranteed_4'] = guaranteed_4
     user_state['cr_count'] = cr_count
-    # return results, pity_5, pity_4, guaranteed_5, guaranteed_4, cr_count
-    return user_state
+
+    if lightweight:
+        return user_state, featured_5_count, featured_4_count
+    else:
+        user_state['items'] = results
+        return user_state
 
 def simulate_distribution(num_wishes, initial_user_state):
-    num_trials = 10000
+    num_trials = 100000
     
     # Keys will be 'n' (number of times won), values will be the frequency
     dist_featured_5 = {}
@@ -155,21 +138,9 @@ def simulate_distribution(num_wishes, initial_user_state):
         current_state = copy.deepcopy(initial_user_state)
         
         # 2. Run the simulation for exactly y pulls
-        current_state = simulate_wish(num_wishes, current_state)
-        results = current_state['items']
-        
-        # 3. Count how many featured characters dropped IN THIS TRIAL
-        trial_5_star_count = 0
-        trial_4_star_count = 0
-        
-        for pull in results:
-            if pull['rarity'] == 5 and pull['status'] in ['G', 'W', 'CR']:
-                trial_5_star_count += 1
-            elif pull['rarity'] == 4 and pull['status'] in ['G', 'W']:
-                # Roll a 3-sided die to see WHICH of the 3 featured 4-stars it is
-                specific_4_star_rolled = random.randint(1, 3)
-                if specific_4_star_rolled == 1:  # Let's say '1' is the target character
-                    trial_4_star_count += 1
+        current_state, trial_5_star_count, trial_4_star_count = simulate_wish(
+            num_wishes, current_state, lightweight=True
+        )        
                 
         # 4. Record the total 'n' for this trial into our frequency distribution
         # Ex: dist_featured_5[1] = dist_featured_5.get(1, 0) + 1  for when the trial had exactly 1 featured 5-star drop
