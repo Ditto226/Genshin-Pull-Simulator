@@ -127,7 +127,7 @@ def simulate_wish(num_wishes, user_state, lightweight=False):
         return user_state
 
 def simulate_distribution(num_wishes, initial_user_state):
-    num_trials = 100000
+    num_trials = 10000
     
     # Keys will be 'n' (number of times won), values will be the frequency
     dist_featured_5 = {}
