@@ -56,12 +56,12 @@ def simulate_wish(num_wishes, user_state, lightweight = False):
                 guaranteed_5 = False
             # trigger CR
             elif random.random() < CR_TRIGGER_RATES[min(cr_count, 3)]:   
-                    if lightweight:
-                        featured_5_count += 1
-                    else:
-                        results.append({"name": featured_5_star, "rarity": 5, "status": "CR", "pity": pity_5}) 
-                    guaranteed_5 = False
-                    cr_count = 1
+                if lightweight:
+                    featured_5_count += 1
+                else:
+                    results.append({"name": featured_5_star, "rarity": 5, "status": "CR", "pity": pity_5}) 
+                guaranteed_5 = False
+                cr_count = 1
             # win 5050
             elif random.random() < 0.5 :
                 if lightweight:
