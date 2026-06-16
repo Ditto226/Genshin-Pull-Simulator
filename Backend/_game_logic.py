@@ -70,9 +70,7 @@ def simulate_wish(num_wishes, user_state, lightweight=False):
                 cr_count = max(0, cr_count - 1)
             # loss 5050
             else:
-                if lightweight:
-                    featured_5_count += 1
-                else:
+                if not lightweight:
                     character = random.choice(non_featured_5_stars)
                     results.append({"name": character, "rarity": 5, "status": "L", "pity": pity_5}) 
                 guaranteed_5 = True
