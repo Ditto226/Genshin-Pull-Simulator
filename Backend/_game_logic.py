@@ -2,6 +2,7 @@ import random
 import json
 import os
 import copy
+from typing import Any
 
 standard_pools = os.path.join("Assets", "standard_pools.json")
 banner = os.path.join("Assets", "banner.json")
@@ -11,7 +12,7 @@ with open(standard_pools, 'r') as f:
 with open(banner, 'r') as f:
     banner_data = json.load(f)
 
-def simulate_wish(num_wishes, user_state, lightweight=False):
+def simulate_wish(num_wishes, user_state, lightweight = False):
 
     pity_5, pity_4 = user_state.get('pity_5', 0) , user_state.get('pity_4', 0)
     guaranteed_5, guaranteed_4 = user_state.get('guaranteed_5', False), user_state.get('guaranteed_4', False)
@@ -102,7 +103,7 @@ def simulate_wish(num_wishes, user_state, lightweight=False):
                 if not lightweight:
                     character = random.choice(non_featured_4_stars)
                     results.append({"name": character, "rarity": 4, "status": "L", "pity": pity_4})
-                    guaranteed_4 = True 
+                guaranteed_4 = True 
             pity_4 = 0  
 
         else:
@@ -148,8 +149,10 @@ def simulate_distribution(num_wishes, initial_user_state):
     # Optional: Convert frequencies to probabilities (percentages)
     prob_dist_5 = {n: (freq / num_trials) for n, freq in dist_featured_5.items()}
     prob_dist_4 = {n: (freq / num_trials) for n, freq in dist_featured_4.items()}
+    expected_value5 = sum(n * prob for n, prob in prob_dist_5.items())
+    expected_value4 = sum(n * prob for n, prob in prob_dist_4.items())
 
-    return prob_dist_5, prob_dist_4
+    return prob_dist_5, prob_dist_4, expected_value5, expected_value4
 
 
 def calc_stats(user_items):

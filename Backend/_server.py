@@ -4,7 +4,7 @@ import sqlite3
 import logging
 from logging.handlers import RotatingFileHandler
 import time
-from typing import Any, List, Optional
+from typing import Any, List, Optional, cast
 from fastapi import Depends, FastAPI, HTTPException, Query, status, Request
 from pydantic import BaseModel, Field
 import uvicorn
@@ -208,9 +208,9 @@ def get_dist(username: str, frequency: int = Query(...), conn: sqlite3.Connectio
 
     user_state["guaranteed_5"] = bool(user_state["guaranteed_5"])
     user_state["guaranteed_4"] = bool(user_state["guaranteed_4"])
-    prob_dist_5, prob_dist_4 = simulate_distribution(frequency, user_state)
+    prob_dist_5, prob_dist_4, expected_value5, expected_value4 = simulate_distribution(frequency, user_state)
 
-    return {"5star_distribution": prob_dist_5, "4star_distribution": prob_dist_4}
+    return {"5star_distribution": prob_dist_5, "4star_distribution": prob_dist_4, "5star_expected_value": expected_value5, "4star_expected_value": expected_value4}
 
 @app.get("/banner")
 def get_banner():
@@ -256,7 +256,7 @@ def pull(username:str, request: PullRequest, conn: sqlite3.Connection = Depends(
     user_state["guaranteed_5"] = bool(user_state["guaranteed_5"])
     user_state["guaranteed_4"] = bool(user_state["guaranteed_4"])
 
-    updated_state = simulate_wish(request.frequency, user_state=user_state)
+    updated_state = cast(dict, simulate_wish(request.frequency, user_state=user_state, lightweight=False))
     
     conn.execute("""
         UPDATE users SET 

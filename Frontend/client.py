@@ -34,35 +34,45 @@ def custom_setting():
     if input().lower() != 'y':
         return {}
     else:
+        print(f"Press Enter to set to default value")
         while True:
-            pity_5 = int(input("Pity 5 (0-89): ").strip())
-            if 0 <= pity_5 <= 89:
+            pity_5 = input("Pity 5 (0-89): ").strip()
+            if pity_5 == "":
+                pity_5 = 0
+                break
+            elif 0 <= int(pity_5) <= 89:
                 break  
             print("[-] Input out of bounds. Try again.")
                 
         while True:
-            pity_4 = int(input("Pity 4 (0-9): ").strip())
-            if 0 <= pity_4 <= 9:
+            pity_4 = input("Pity 4 (0-9): ").strip()
+            if pity_4 == "":
+                pity_4 = 0
+                break
+            elif 0 <= int(pity_4) <= 9:
                 break
             print("[-] Input out of bounds. Try again.")
                 
         while True:
             g5_input = input("Guaranteed 5? (y/n): ").strip().lower()
-            if g5_input in ['y', 'n']:
+            if g5_input in ['y', 'n', ""]:
                 guaranteed_5 = (g5_input == 'y')  # Converts to True or False
                 break
             print("[-] Invalid input. Please enter 'y' or 'n'.")
             
         while True:
             g4_input = input("Guaranteed 4? (y/n): ").strip().lower()
-            if g4_input in ['y', 'n']:
+            if g4_input in ['y', 'n', '']:
                 guaranteed_4 = (g4_input == 'y')
                 break
             print("[-] Invalid input. Please enter 'y' or 'n'.")
             
         while True:
-            cr_count = int(input("CR Count (0-3): ").strip())
-            if 0 <= cr_count <= 3:
+            cr_count = input("CR Count (0-3): ").strip()
+            if cr_count == "":
+                cr_count = 1
+                break
+            elif 0 <= int(cr_count) <= 3:
                 break
             print("[-] Input out of bounds. Try again.")
 
@@ -173,19 +183,33 @@ def handle_simulate_distribution(username):
     print("Simulating pull distribution, this may take a while (10k simulations)...")
     result = send_request("GET", f"/user/{username}/distribution", params={"frequency": num_pulls})
     if result is not None:
-        print("\n--- Featured 5* Distribution ---")
         prob5 = result.get('5star_distribution', {})
-        sorted_prob5 = dict(sorted(prob5.items(), key=lambda x: int(x[0])))  # Sort by count (convert keys to int)
-        for count, prob in sorted_prob5.items():
+        expected_value5 = result.get('5star_expected_value', 0)
+        print("\n--- Featured 5★ Distribution ---\n")
+        print(f"Expected Copies: {expected_value5:.2f}\n")
+        print(f"{'Copies':<8} | {'Probability':<12}")
+        print("-" * 25)
+
+        sorted_prob5 = sorted(prob5.items(), key=lambda x: int(x[0]))
+        for count, prob in sorted_prob5:
             if prob > 0.001:
-                print(f"{count}: {prob:.2%}")
+                # bar_length = int(prob * 50)
+                # bar = "█" * bar_length                
+                print(f"{count:<8} | {prob:<12.2%}")
         
-        print("\n--- Individual Featured 4* Distribution ---")
         prob4 = result.get('4star_distribution', {})
-        sorted_prob4 = dict(sorted(prob4.items(), key=lambda x: int(x[0])))  # Sort by count (convert keys to int)
-        for count, prob in sorted_prob4.items():
+        expected_value4 = result.get('4star_expected_value', 0)
+        print("\n\n--- Individual Featured 4★ Distribution ---\n")
+        print(f"Expected Copies : {expected_value4:.2f}\n")
+        print(f"{'Copies':<8} | {'Probability':<12}")
+        print("-" * 25)
+
+        sorted_prob4 = sorted(prob4.items(), key=lambda x: int(x[0]))
+        for count, prob in sorted_prob4:
             if prob > 0.001:
-                print(f"{count}: {prob:.2%}")
+                # bar_length = int(prob * 50)
+                # bar = "█" * bar_length                
+                print(f"{count:<8} | {prob:<12.2%}")
 
 def view_stats(username):
     result = send_request("GET", f"/user/{username}/stats")
